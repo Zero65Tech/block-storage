@@ -1,0 +1,44 @@
+{
+  "author": "Zero65 Technologies Pvt. Ltd.",
+  "name": "hello-nodejs",
+  "version": "0.3.0",
+  "description": "Node.js Service Template",
+  "license": "MIT",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js server",
+    "build": "node main.js build",
+    "cron": "node main.js cron",
+    "test": "jest --coverage --testPathPattern=test/",
+    "lint": "npx eslint --fix app data test"
+  },
+  "dependencies": {
+    "@zero65tech/date-string-ist": "4.0.x",
+    "@zero65tech/file": "4.0.x",
+    "@zero65tech/firestore": "4.0.x",
+    "@zero65tech/format": "4.0.x",
+    "@zero65tech/indian-stock-market": "4.1.x",
+    "@zero65tech/log": "4.0.x",
+    "@zero65tech/object": "4.0.x",
+    "cors": "2.8.x",
+    "express": "4.18.x",
+    "lodash": "4.17.x"
+  },
+  "devDependencies": {
+    "@zero65tech/eslint-config": "2.0.x",
+    "eslint": "8.54.x",
+    "jest": "29.7.x",
+    "supertest": "6.3.x"
+  },
+  "eslintConfig": {
+    "extends": "@zero65tech"
+  },
+  "nodemonConfig": {
+    "verbose": false,
+    "ignore": [
+      "data",
+      "reports"
+    ],
+    "delay": "100"
+  }
+}
