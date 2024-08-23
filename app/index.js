@@ -122,11 +122,19 @@ function findIndices(records, select) {
 
 app.get('/objects', async (req, res) => {
 
-  let { collection } = req.query;
+  let { collection, select } = req.query;
 
   collection = await getCollection(collection);
+  let records = collection.records;
+
+  for(let [key,value] of Object.entries(select)) {
+    if(value instanceof Array)
+      records = records.filter(record => value.includes(record[key]));
+    else
+      records = records.filter(record => record[key] == value);
+  }
   
-  res.send(collection.records);
+  res.send(records);
 
 });
 
