@@ -1,12 +1,12 @@
 {
   "author": "Zero65 Technologies Pvt. Ltd.",
-  "name": "invest-bcs",
-  "version": "0.3.0",
+  "name": "invest-bcd",
+  "version": "4.3.0",
   "description": "Node.js Service Template",
   "license": "MIT",
   "main": "main.js",
   "scripts": {
-    "start": "nodemon main.js server",
+    "start": "node main.js server",
     "build": "node main.js build",
     "cron": "node main.js cron",
     "test": "jest --coverage --testPathPattern=test/",

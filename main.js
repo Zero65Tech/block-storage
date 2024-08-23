@@ -3,15 +3,6 @@
   process.env.STAGE = process.env.STAGE || 'alpha';
   process.env.PORT  = process.env.PORT  || 8080;
 
-  const Firestore = require('@zero65tech/firestore');
-  await Firestore.init({
-    project: 'zero65-test',
-    collections: [ 'HELLO_DOCUMENTS' ]
-  });
-
-  const Storage = require('@zero65tech/storage');
-  await Storage.init({ bucket: 'zero65-invest-portfolio' });
-
   if(process.argv[2] == 'build') {
 
     await require('./build')();
