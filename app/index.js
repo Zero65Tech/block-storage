@@ -146,7 +146,7 @@ app.put('/objects', async (req, res) => {
     if(indices.length > 1)
       return res.status(400).send('"key" should be unique !');
 
-    if(indices[0])
+    if(indices.length)
       records[indices[0]] = object;
     else
       records.push(object);
