@@ -1,7 +1,10 @@
 const express = require('express');
 const app     = express();
+app.use(express.json());
 
 const readline = require('readline');
+
+const Log = new (require('@zero65tech/log'));
 
 const { Storage } = require('@google-cloud/storage');
 const storage = new Storage();
@@ -11,7 +14,7 @@ const _ = require('lodash');
 const BUCKET = 'zero65-invest-portfolio';
 
 const COLLECTIONS = [
-  // { name, documents, dirty, locked, lastAccessed }
+  // { name, records, dirty, locked, lastAccessed }
 ];
 
 
@@ -27,18 +30,18 @@ setInterval(async () => {
 
     collection.locked = true;
 
-    let ws = storage.bucket(bucketName).file(fileName).createWriteStream();
+    let ws = storage.bucket(BUCKET).file(collection.name).createWriteStream();
 
     ws.on('finish', () => {
       collection.dirty = false;
+      collection.locked = false;
+      Log.notice(`${ collection.name } saved to GSC !`);
     });
 
-    for(let line of content)
+    for(let line of collection.records)
       ws.write(JSON.stringify(line) + '\n');
 
     ws.end();
-
-    collection.locked = false;
 
   }
 
@@ -59,24 +62,28 @@ async function getCollection(name) {
 
   } else {
 
-    collection = { name, documents:null, locked:true, lastAccessed:Date.now() };
+    collection = { name, records:null, locked:true, lastAccessed:Date.now() };
     COLLECTIONS.push(collection);
 
     const rl = readline.createInterface({
       input: storage.bucket(BUCKET).file(name).createReadStream()
     });
 
-    collection.documents = await new Promise(resolve => {
+    collection.records = await new Promise(resolve => {
 
-      let documents = [];
+      let records = [];
       
-      rl.on('line', (line) => documents.push(JSON.parse(line)));
+      rl.on('line', (line) => records.push(JSON.parse(line)));
 
-      rl.on('close', () => resolve(documents));
+      rl.on('close', () => {
+        resolve(records);
+        Log.notice(`${ name } fetched from GSC !`);
+      });
 
     });
 
     collection.locked = false;
+    collection.lastAccessed = Date.now();
 
   }
 
@@ -88,16 +95,31 @@ async function getCollection(name) {
 
 app.get('/', async (req, res) => {
 
-  let collection = await getCollection(`temp/${ req.query.file }.json`);
-  res.send(collection.documents);
+  const { name } = req.query;
+
+  let collection = await getCollection(name);
+  
+  res.send(collection.records);
 
 });
 
 app.put('/', async (req, res) => {
 
-  const { id, ...updates } = req.body;
+  const { name, select, record } = req.body;
 
-  await Data.update(id, updates);
+  let collection = await getCollection(name);
+  let records = collection.records;
+
+  if(select)
+    for(let [ key, value ] in Object.entries(select))
+      records = records.filter(record => record[key] == value);
+
+  if(!select || !records.length)
+    collection.records.push(record);
+
+  assert.equal(records.length, 1);
+
+  collection.dirty = true;
 
   res.sendStatus(204);
 
@@ -105,7 +127,7 @@ app.put('/', async (req, res) => {
 
 app.patch('/', async (req, res) => {
 
-  const { id, ...updates } = req.body;
+  const { select, updates } = req.body;
 
   await Data.update(id, updates);
 
@@ -115,7 +137,7 @@ app.patch('/', async (req, res) => {
 
 app.delete('/', async (req, res) => {
 
-  const { id } = req.body;
+  const { select } = req.body;
 
   await Data.purge(id);
 
