@@ -9,8 +9,6 @@ const Log = new (require('@zero65tech/log'));
 const { Storage } = require('@google-cloud/storage');
 const storage = new Storage();
 
-const _ = require('lodash');
-
 const BUCKET = 'zero65-invest-portfolio';
 
 const COLLECTIONS = [

@@ -14,16 +14,8 @@
   },
   "dependencies": {
     "@google-cloud/storage": "^7.12.1",
-    "@zero65tech/date-string-ist": "4.0.x",
-    "@zero65tech/file": "4.0.x",
-    "@zero65tech/firestore": "4.0.x",
-    "@zero65tech/format": "4.0.x",
-    "@zero65tech/indian-stock-market": "4.1.x",
     "@zero65tech/log": "4.0.x",
-    "@zero65tech/object": "4.0.x",
-    "cors": "2.8.x",
-    "express": "4.18.x",
-    "lodash": "4.17.x"
+    "express": "4.18.x"
   },
   "devDependencies": {
     "@zero65tech/eslint-config": "2.0.x",
