@@ -14,7 +14,7 @@ const _ = require('lodash');
 const BUCKET = 'zero65-invest-portfolio';
 
 const COLLECTIONS = [
-  // { name, records, dirty, locked, lastAccessed }
+  // { name, records, timestamp: { accessed, updated, saved } }
 ];
 
 
@@ -25,16 +25,14 @@ setInterval(async () => {
 
   for(let collection of COLLECTIONS) {
 
-    if(!collection.dirty)
+    let ts = collection.timestamp.updated;
+    if(collection.timestamp.saved == ts)
       continue;
-
-    collection.locked = true;
 
     let ws = storage.bucket(BUCKET).file(collection.name).createWriteStream();
 
     ws.on('finish', () => {
-      collection.dirty = false;
-      collection.locked = false;
+      collection.timestamp.saved = ts;
       Log.notice(`${ collection.name } saved to GSC !`);
     });
 
@@ -55,14 +53,14 @@ async function getCollection(name) {
 
   if(collection) {
 
-    while(collection.locked)
+    // wait while other request is fetching from GSC
+    while(collection.records === null)
       await new Promise(resolve => setTimeout(resolve, 100));
-
-    collection.lastAccessed = Date.now();
 
   } else {
 
-    collection = { name, records:null, locked:true, lastAccessed:Date.now() };
+    // put other requests on wait
+    collection = { name, records:null, timestamp: { accessed:Date.now(), updated:0, saved:0 } };
     COLLECTIONS.push(collection);
 
     const rl = readline.createInterface({
@@ -73,7 +71,9 @@ async function getCollection(name) {
 
       let records = [];
       
-      rl.on('line', (line) => records.push(JSON.parse(line)));
+      rl.on('line', (line) => {
+        records.push(JSON.parse(line));
+      });
 
       rl.on('close', () => {
         resolve(records);
@@ -82,12 +82,32 @@ async function getCollection(name) {
 
     });
 
-    collection.locked = false;
-    collection.lastAccessed = Date.now();
+  }
+
+  collection.timestamp.accessed = Date.now();
+  return collection;
+
+}
+
+
+
+function findIndices(records, select) {
+
+  let indices = [];
+
+  outer: for(let i = 0; i < records.length; i++) {
+
+    let record = records[i];
+    
+    for(let [key,value] of Object.entries(select))
+      if(record[key] !== value)
+        continue outer;
+
+    indices.push(i);
 
   }
 
-  return collection;
+  return indices;
 
 }
 
@@ -105,41 +125,62 @@ app.get('/', async (req, res) => {
 
 app.put('/', async (req, res) => {
 
-  const { name, select, record } = req.body;
+  const { name, key, record } = req.body;
 
   let collection = await getCollection(name);
   let records = collection.records;
 
-  if(select)
-    for(let [ key, value ] in Object.entries(select))
-      records = records.filter(record => record[key] == value);
+  let select = {};
+  for(let k of key)
+    select[k] = record[k];
 
-  if(!select || !records.length)
-    collection.records.push(record);
+  let indices = findIndices(records, select);
 
-  assert.equal(records.length, 1);
+  if(indices.length > 1)
+    return res.status(400).send('"key" should be unique !');
 
-  collection.dirty = true;
+  if(indices[0])
+    records[indices[0]] = record;
+  else
+    records.push(record);
 
-  res.sendStatus(204);
+  collection.timestamp.updated = Date.now();
+
+  res.sendStatus(202);
 
 });
 
 app.patch('/', async (req, res) => {
 
-  const { select, updates } = req.body;
+  const { name, select, updates } = req.body;
 
-  await Data.update(id, updates);
+  let collection = await getCollection(name);
+  let records = collection.records;
 
-  res.sendStatus(204);
+  let indices = findIndices(records, select);
+  for(let idx of indices)
+    Object.assign(records[idx], updates);
+
+  if(indices.length)
+    collection.timestamp.updated = Date.now();
+
+  res.sendStatus(202);
 
 });
 
 app.delete('/', async (req, res) => {
 
-  const { select } = req.body;
+  const { name, select } = req.query;
 
-  await Data.purge(id);
+  let collection = await getCollection(name);
+  let records = collection.records;
+
+  let indices = findIndices(records, select);
+  for(let idx of indices.reverse())
+    indices.splice(idx,1);
+
+  if(indices.length)
+    collection.timestamp.updated = Date.now();
 
   res.sendStatus(204);
 
