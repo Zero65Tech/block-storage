@@ -19,8 +19,6 @@ const COLLECTIONS = [
 
 setInterval(async () => {
 
-  Log.notice('Cron Started ...');
-
   COLLECTIONS.sort((a,b) => a.lastAccessed < b.lastAccessed ? 1 : -1);
 
   for(let collection of COLLECTIONS) {
@@ -43,7 +41,7 @@ setInterval(async () => {
 
   }
 
-}, 10 * 1000);
+}, 60 * 1000);
 
 
 
