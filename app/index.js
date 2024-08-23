@@ -75,6 +75,13 @@ async function getCollection(name) {
         records.push(JSON.parse(line));
       });
 
+      rl.on('error', (e) => {
+        if(e.code != 404)
+          throw e;
+        resolve(records);
+        Log.notice(`${ name } not found on GSC !`);
+      });
+
       rl.on('close', () => {
         resolve(records);
         Log.notice(`${ name } fetched from GSC !`);
