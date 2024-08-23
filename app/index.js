@@ -118,7 +118,7 @@ function findIndices(records, select) {
 
 
 
-app.get('/', async (req, res) => {
+app.get('/objects', async (req, res) => {
 
   let { collection } = req.query;
 
@@ -128,7 +128,7 @@ app.get('/', async (req, res) => {
 
 });
 
-app.put('/', async (req, res) => {
+app.put('/objects', async (req, res) => {
 
   let { collection, key, objects } = req.body;
 
@@ -159,7 +159,7 @@ app.put('/', async (req, res) => {
 
 });
 
-app.patch('/', async (req, res) => {
+app.patch('/objects', async (req, res) => {
 
   const { collection, select, updates } = req.body;
 
@@ -177,7 +177,7 @@ app.patch('/', async (req, res) => {
 
 });
 
-app.delete('/', async (req, res) => {
+app.delete('/objects', async (req, res) => {
 
   const { collection, select } = req.query;
 
