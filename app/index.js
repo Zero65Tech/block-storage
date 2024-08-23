@@ -1,43 +1,95 @@
 const express = require('express');
 const app     = express();
-const cors = require('cors');
 
-const Data = require('../data');
+const readline = require('readline');
+
+const { Storage } = require('@google-cloud/storage');
+const storage = new Storage();
+
+const _ = require('lodash');
+
+const BUCKET = 'zero65-invest-portfolio';
+
+const COLLECTIONS = [
+  // { name, documents, dirty, locked, lastAccessed }
+];
 
 
 
-app.use(express.json());
-app.use(cors());
+setInterval(async () => {
+
+  COLLECTIONS.sort((a,b) => a.lastAccessed < b.lastAccessed ? 1 : -1);
+
+  for(let collection of COLLECTIONS) {
+
+    if(!collection.dirty)
+      continue;
+
+    collection.locked = true;
+
+    let ws = storage.bucket(bucketName).file(fileName).createWriteStream();
+
+    ws.on('finish', () => {
+      collection.dirty = false;
+    });
+
+    for(let line of content)
+      ws.write(JSON.stringify(line) + '\n');
+
+    ws.end();
+
+    collection.locked = false;
+
+  }
+
+}, 10 * 1000);
+
+
+
+async function getCollection(name) {
+
+  let collection = COLLECTIONS.find(collection => collection.name == name);
+
+  if(collection) {
+
+    while(collection.locked)
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+    collection.lastAccessed = Date.now();
+
+  } else {
+
+    collection = { name, documents:null, locked:true, lastAccessed:Date.now() };
+    COLLECTIONS.push(collection);
+
+    const rl = readline.createInterface({
+      input: storage.bucket(BUCKET).file(name).createReadStream()
+    });
+
+    collection.documents = await new Promise(resolve => {
+
+      let documents = [];
+      
+      rl.on('line', (line) => documents.push(JSON.parse(line)));
+
+      rl.on('close', () => resolve(documents));
+
+    });
+
+    collection.locked = false;
+
+  }
+
+  return collection;
+
+}
 
 
 
 app.get('/', async (req, res) => {
 
-  res.send('Hello NodeJs !');
-
-});
-
-app.get('/_env', async (req, res) => {
-
-  res.send(process.env);
-  
-});
-
-app.get('/list', async (req, res) => {
-
-  const list = await Data.list();
-
-  res.send(list);
-
-});
-
-app.post('/', async (req, res) => {
-
-  let data = req.body;
-
-  data = await Data.add(data);
-
-  res.send(data);
+  let collection = await getCollection(`temp/${ req.query.file }.json`);
+  res.send(collection.documents);
 
 });
 

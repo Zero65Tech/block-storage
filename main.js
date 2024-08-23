@@ -9,6 +9,9 @@
     collections: [ 'HELLO_DOCUMENTS' ]
   });
 
+  const Storage = require('@zero65tech/storage');
+  await Storage.init({ bucket: 'zero65-invest-portfolio' });
+
   if(process.argv[2] == 'build') {
 
     await require('./build')();

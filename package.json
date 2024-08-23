@@ -1,18 +1,19 @@
 {
   "author": "Zero65 Technologies Pvt. Ltd.",
-  "name": "hello-nodejs",
+  "name": "invest-bcs",
   "version": "0.3.0",
   "description": "Node.js Service Template",
   "license": "MIT",
   "main": "main.js",
   "scripts": {
-    "start": "node main.js server",
+    "start": "nodemon main.js server",
     "build": "node main.js build",
     "cron": "node main.js cron",
     "test": "jest --coverage --testPathPattern=test/",
     "lint": "npx eslint --fix app data test"
   },
   "dependencies": {
+    "@google-cloud/storage": "^7.12.1",
     "@zero65tech/date-string-ist": "4.0.x",
     "@zero65tech/file": "4.0.x",
     "@zero65tech/firestore": "4.0.x",
@@ -36,6 +37,7 @@
   "nodemonConfig": {
     "verbose": false,
     "ignore": [
+      "@storage",
       "data",
       "reports"
     ],
