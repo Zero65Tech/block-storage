@@ -120,9 +120,9 @@ function findIndices(records, select) {
 
 app.get('/', async (req, res) => {
 
-  const { name } = req.query;
+  let { collection } = req.query;
 
-  let collection = await getCollection(name);
+  collection = await getCollection(collection);
   
   res.send(collection.records);
 
@@ -130,24 +130,28 @@ app.get('/', async (req, res) => {
 
 app.put('/', async (req, res) => {
 
-  const { name, key, record } = req.body;
+  let { collection, key, objects } = req.body;
 
-  let collection = await getCollection(name);
+  collection = await getCollection(collection);
   let records = collection.records;
 
-  let select = {};
-  for(let k of key)
-    select[k] = record[k];
+  for(let object of objects) {
 
-  let indices = findIndices(records, select);
+    let select = {};
+    for(let k of key)
+      select[k] = object[k];
 
-  if(indices.length > 1)
-    return res.status(400).send('"key" should be unique !');
+    let indices = findIndices(records, select);
 
-  if(indices[0])
-    records[indices[0]] = record;
-  else
-    records.push(record);
+    if(indices.length > 1)
+      return res.status(400).send('"key" should be unique !');
+
+    if(indices[0])
+      records[indices[0]] = object;
+    else
+      records.push(object);
+
+  }
 
   collection.timestamp.updated = Date.now();
 
@@ -157,9 +161,9 @@ app.put('/', async (req, res) => {
 
 app.patch('/', async (req, res) => {
 
-  const { name, select, updates } = req.body;
+  const { collection, select, updates } = req.body;
 
-  let collection = await getCollection(name);
+  collection = await getCollection(collection);
   let records = collection.records;
 
   let indices = findIndices(records, select);
@@ -175,9 +179,9 @@ app.patch('/', async (req, res) => {
 
 app.delete('/', async (req, res) => {
 
-  const { name, select } = req.query;
+  const { collection, select } = req.query;
 
-  let collection = await getCollection(name);
+  collection = await getCollection(collection);
   let records = collection.records;
 
   let indices = findIndices(records, select);
