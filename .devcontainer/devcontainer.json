@@ -1,0 +1,6 @@
+{
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "postAttachCommand": {
+    "server": "./.devcontainer/script.sh"
+  }
+}
