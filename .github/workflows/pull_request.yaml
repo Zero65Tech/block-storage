@@ -1,0 +1,11 @@
+name: Zero65Tech
+
+on:
+  pull_request:
+    types: [ opened, synchronize ]
+
+jobs:
+  lint:
+    uses: Zero65Tech/github-workflows/.github/workflows/lint-and-commit.yaml@master
+    with:
+      NODE_VERSION: '22' # 22.12.0
