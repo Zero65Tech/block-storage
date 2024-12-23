@@ -1,8 +1,8 @@
 {
-  "author": "Zero65 Technologies Pvt. Ltd.",
+  "author": "Prashant Gupta @ Zero65 Technologies Pvt. Ltd.",
   "name": "invest-bcd",
-  "version": "4.3.0",
-  "description": "Node.js Service Template",
+  "version": "5.4.0",
+  "description": "Invest BCD Service",
   "license": "MIT",
   "main": "main.js",
   "scripts": {
