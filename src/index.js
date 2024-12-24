@@ -1,5 +1,7 @@
 const { DuckDBInstance } = require('@duckdb/node-api');
 
+const bucket = require('./config/storage');
+
 class DuckStorage {
 
   #connection = null;
@@ -34,8 +36,8 @@ class DuckStorage {
 
   }
 
-  #loadTableFromGCS = async (tableName) => {
-    // stream data from gcs and load to table
+  #loadTableFromGCS = async (schema, table) => {
+    bucket.file(`${schema}/${table}.json`).createReadStream().pipe()
   }
 
   exec = async (schema, table, query) => {

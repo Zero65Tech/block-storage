@@ -11,7 +11,7 @@
     "build": "node main.js build",
     "cron": "node main.js cron",
     "test": "jest --coverage --testPathPattern=test/",
-    "lint": "npx eslint --fix app data test"
+    "lint": "npx eslint src test --ext .js,.json --fix"
   },
   "dependencies": {
     "@duckdb/node-api": "^1.1.3-alpha.8",

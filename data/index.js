@@ -34,7 +34,7 @@ async function add(data) {
 async function update(id, updates) {
 
   updates[ 'timestamp.update' ] = new Date();
-  
+
   await Firestore.HELLO_DOCUMENTS.doc(id).update(updates);
 
 }
