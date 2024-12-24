@@ -7,12 +7,14 @@
   "main": "main.js",
   "scripts": {
     "start": "node main.js server",
+    "dev": "nodemon src/index.js",
     "build": "node main.js build",
     "cron": "node main.js cron",
     "test": "jest --coverage --testPathPattern=test/",
     "lint": "npx eslint --fix app data test"
   },
   "dependencies": {
+    "@duckdb/node-api": "^1.1.3-alpha.8",
     "@google-cloud/storage": "^7.12.1",
     "@zero65tech/log": "4.0.x",
     "express": "4.18.x"
@@ -21,6 +23,7 @@
     "@zero65tech/eslint-config": "2.0.x",
     "eslint": "8.54.x",
     "jest": "29.7.x",
+    "nodemon": "3.x.x",
     "supertest": "6.3.x"
   },
   "eslintConfig": {
@@ -33,6 +36,6 @@
       "data",
       "reports"
     ],
-    "delay": "100"
+    "delay": "1000"
   }
 }
