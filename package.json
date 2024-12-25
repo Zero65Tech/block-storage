@@ -3,39 +3,31 @@
   "name": "invest-bcd",
   "version": "5.4.0",
   "description": "Invest BCD Service",
-  "license": "MIT",
-  "main": "main.js",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node main.js server",
+    "start": "node src/index.js",
     "dev": "nodemon src/index.js",
-    "build": "node main.js build",
-    "cron": "node main.js cron",
     "test": "jest --coverage --testPathPattern=test/",
     "lint": "npx eslint src test --ext .js,.json --fix"
   },
   "dependencies": {
     "@duckdb/node-api": "^1.1.3-alpha.8",
-    "@google-cloud/storage": "^7.12.1",
+    "@google-cloud/storage": "7.12.x",
     "@zero65tech/log": "4.0.x",
     "express": "4.18.x"
   },
   "devDependencies": {
-    "@zero65tech/eslint-config": "2.0.x",
-    "eslint": "8.54.x",
-    "jest": "29.7.x",
-    "nodemon": "3.x.x",
-    "supertest": "6.3.x"
+    "@zero65tech/eslint-config": "2.x.x",
+    "eslint": "8.x.x",
+    "jest": "29.x.x",
+    "nodemon": "3.x.x"
   },
   "eslintConfig": {
     "extends": "@zero65tech"
   },
   "nodemonConfig": {
     "verbose": false,
-    "ignore": [
-      "@storage",
-      "data",
-      "reports"
-    ],
+    "ignore": [],
     "delay": "1000"
   }
 }
