@@ -3,7 +3,7 @@ const express = require('express');
 const CollectionSetService = require('./services/collection-set');
 
 const collectionSets = new Map([
-  [ 'pnl', new CollectionSetService('pnl/') ]
+  [ 'pnl', new CollectionSetService('ready/pnl/') ]
 ]);
 
 setInterval(async () => {

@@ -1,7 +1,7 @@
 const readline = require('readline');
 const zlib = require('zlib');
 const bucket = require('../config/storage');
-const Log = new (require('@zero65tech/log'));
+const log = new (require('@zero65tech/log'));
 
 class CollectionService {
 
@@ -98,7 +98,7 @@ class CollectionService {
 
       gcsStream.on('finish', () => {
         this.#collectionLastPersisted = dateRef;
-        Log.notice(`${ this.#collectionPath + this.#collectionName } persisted to GCS !`);
+        log.notice(`${ this.#collectionPath + this.#collectionName } persisted to GCS !`);
         resolve();
       });
 
