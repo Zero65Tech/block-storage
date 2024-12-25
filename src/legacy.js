@@ -1,6 +1,5 @@
 const express = require('express');
-const app     = express();
-app.use(express.json());
+const router = express.Router();
 
 const readline = require('readline');
 
@@ -118,7 +117,7 @@ function findIndices(records, select) {
 
 
 
-app.get('/objects', async (req, res) => {
+router.get('/objects', async (req, res) => {
 
   let { collection, select } = req.query;
 
@@ -136,7 +135,7 @@ app.get('/objects', async (req, res) => {
 
 });
 
-app.put('/objects', async (req, res) => {
+router.put('/objects', async (req, res) => {
 
   let { collection, key, objects } = req.body;
 
@@ -167,7 +166,7 @@ app.put('/objects', async (req, res) => {
 
 });
 
-app.patch('/objects', async (req, res) => {
+router.patch('/objects', async (req, res) => {
 
   const { collection, select, updates } = req.body;
 
@@ -185,7 +184,7 @@ app.patch('/objects', async (req, res) => {
 
 });
 
-app.delete('/objects', async (req, res) => {
+router.delete('/objects', async (req, res) => {
 
   const { collection, select } = req.query;
 
@@ -205,4 +204,4 @@ app.delete('/objects', async (req, res) => {
 
 
 
-module.exports = app;
+module.exports = router;
