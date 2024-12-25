@@ -18,7 +18,7 @@ const COLLECTIONS = [
 
 setInterval(async () => {
 
-  COLLECTIONS.sort((a,b) => a.lastAccessed < b.lastAccessed ? 1 : -1);
+  COLLECTIONS.sort((a, b) => a.lastAccessed < b.lastAccessed ? 1 : -1);
 
   for(let collection of COLLECTIONS) {
 
@@ -67,7 +67,7 @@ async function getCollection(name) {
     collection.records = await new Promise(resolve => {
 
       let records = [];
-      
+
       rl.on('line', (line) => {
         records.push(JSON.parse(line));
       });
@@ -102,8 +102,8 @@ function findIndices(records, select) {
   outer: for(let i = 0; i < records.length; i++) {
 
     let record = records[i];
-    
-    for(let [key,value] of Object.entries(select))
+
+    for(let [key, value] of Object.entries(select))
       if(record[key] !== value)
         continue outer;
 
@@ -124,13 +124,13 @@ router.get('/objects', async (req, res) => {
   collection = await getCollection(collection);
   let records = collection.records;
 
-  for(let [key,value] of Object.entries(select)) {
+  for(let [key, value] of Object.entries(select)) {
     if(value instanceof Array)
       records = records.filter(record => value.includes(record[key]));
     else
       records = records.filter(record => record[key] == value);
   }
-  
+
   res.send(records);
 
 });
@@ -193,7 +193,7 @@ router.delete('/objects', async (req, res) => {
 
   let indices = findIndices(records, select);
   for(let idx of indices.reverse())
-    indices.splice(idx,1);
+    indices.splice(idx, 1);
 
   if(indices.length)
     collection.timestamp.updated = Date.now();

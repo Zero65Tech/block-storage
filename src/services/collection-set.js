@@ -1,6 +1,6 @@
-const CollectionService = require('./CollectionService');
+const CollectionService = require('./collection');
 
-class CollectionsService {
+class CollectionSetService {
 
   #collectionsPath;
   #collections = new Map();
@@ -29,4 +29,4 @@ class CollectionsService {
 
 }
 
-module.exports = CollectionsService;
+module.exports = CollectionSetService;
