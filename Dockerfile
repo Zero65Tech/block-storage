@@ -1,6 +1,6 @@
 FROM node:22-slim
 
-WORKDIR /usr/src/app
+WORKDIR /usr/src
 
 RUN pwd
 RUN ls -al
