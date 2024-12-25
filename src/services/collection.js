@@ -1,5 +1,5 @@
 const readline = require('readline');
-const bucket = require('../config/storage.js');
+const bucket = require('../config/storage');
 
 const Log = new (require('@zero65tech/log'));
 
@@ -16,10 +16,10 @@ class CollectionService {
     this.#collectionName = collectionName;
   }
 
-  async #init() {
+  async init() {
 
-    while(this.#collection === null) // Waiting while other thread is loading collection from GCS
-      await new Promise(resolve => setInterval(resolve, 100));
+    while(this.#collection === null) // Waiting while other thread is loading data from GCS
+      await new Promise(resolve => setInterval(resolve, 25));
 
     if(this.#collection)
       return;
@@ -32,11 +32,6 @@ class CollectionService {
 
       const rl = readline.createInterface({
         input: bucket.file(this.#collectionPath + this.#collectionName).createReadStream()
-      });
-
-      rl.on('line', (line) => {
-        const { key, timestamp, data } = JSON.parse(line);
-        map.set(key, { data, timestamp });
       });
 
       rl.on('error', (e) => {
@@ -54,65 +49,60 @@ class CollectionService {
         resolve();
       });
 
+      rl.on('line', (line) => {
+        const { key, timestamp, data } = JSON.parse(line);
+        map.set(key, { data, timestamp });
+      });
+
     });
+
+    this.init = () => { return; };
 
   }
 
   async get(key) {
-    await this.#init();
-    this.get = (key) => {
-      const entry = this.#collection.get(key);
-      return entry ? entry.data : null;
-    }
-    return this.get(key);
+    await this.init();
+    const entry = this.#collection.get(key);
+    return entry ? entry.data : null;
   }
 
   async set(key, data) {
-    await this.#init();
-    this.set = (key, data) => {
-      this.#collection.set(key, { data, timestamp: new Date() });
-      this.#collectionLastUpdated = new Date();
-    }
-    return this.set(key, data);
+    await this.init();
+    this.#collection.set(key, { data, timestamp: new Date() });
+    this.#collectionLastUpdated = new Date();
   }
 
   async persist() {
-    await this.#init();
-    this.persist = async () => {
 
-      if(!this.#collectionLastUpdated <= this.#collectionLastPersisted)
-        return;
+    await this.init();
 
-      const dateRef = this.#collectionLastUpdated;
+    if(this.#collectionLastUpdated == this.#collectionLastPersisted)
+      return;
 
-      await new Promise((resolve, reject) => {
+    const dateRef = this.#collectionLastUpdated;
 
-        let ws = bucket.file(this.#collectionPath + this.#collectionName).createWriteStream();
+    await new Promise((resolve, reject) => {
 
-        ws.on('error', (e) => {
-          reject(e);
-        });
+      let ws = bucket.file(this.#collectionPath + this.#collectionName).createWriteStream();
 
-        ws.on('finish', () => {
-          this.#collectionLastPersisted = dateRef;
-          Log.notice(`${ this.#collectionPath + this.#collectionName } persisted to GCS !`);
-          resolve();
-        });
-
-        const keys = Array.from(this.#collection.keys());
-        keys.sort();
-
-        for(const key of keys) {
-          const { data, timestamp } = this.#collection.get(key);
-          ws.write(JSON.stringify({ key, timestamp, data }) + '\n');
-        }
-
-        ws.end();
-
+      ws.on('error', (e) => {
+        reject(e);
       });
 
-    }
-    await this.persist();
+      ws.on('finish', () => {
+        this.#collectionLastPersisted = dateRef;
+        Log.notice(`${ this.#collectionPath + this.#collectionName } persisted to GCS !`);
+        resolve();
+      });
+
+      for(const key of Array.from(this.#collection.keys()).sort()) {
+        const { data, timestamp } = this.#collection.get(key);
+        ws.write(JSON.stringify({ key, timestamp, data }) + '\n');
+      }
+
+      ws.end();
+
+    });
   }
 
 }
