@@ -9,7 +9,7 @@ const collectionSets = new Map([
 setInterval(async () => {
   for(const collectionSet of collectionSets.values())
     await collectionSet.persistAll();
-}, 5 * 1000);
+}, 60 * 1000);
 
 const app = express();
 app.use(express.json());
@@ -19,7 +19,7 @@ app.use('/', require('./legacy'));
 app.get('/:collectionSet/:collectionName/:key', async (req, res) => {
 
   const { collectionSet, collectionName, key } = req.params;
-  
+
   const collectionSetSevice = collectionSets.get(collectionSet);
   const collectionService = collectionSetSevice.get(collectionName);
 
