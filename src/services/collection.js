@@ -1,4 +1,5 @@
 const readline = require('readline');
+const zlib = require('zlib');
 const bucket = require('../config/storage');
 const Log = new (require('@zero65tech/log'));
 
@@ -82,12 +83,16 @@ class CollectionService {
 
     await new Promise((resolve, reject) => {
 
-      const metadata = {
-        contentType: 'text/plain',
-        // contentEncoding: response.headers['content-encoding']
-      };
+      const gzipStream = zlib.createGzip();
 
+      const metadata = { contentType: 'text/plain', contentEncoding: 'gzip' };
       const ws = bucket.file(this.#collectionPath + this.#collectionName).createWriteStream({ metadata });
+
+      gzipStream.pipe(ws);
+
+      gzipStream.on('error', (e) => {
+        reject(e);
+      });
 
       ws.on('error', (e) => {
         reject(e);
@@ -101,10 +106,10 @@ class CollectionService {
 
       for(const key of Array.from(this.#collection.keys()).sort()) {
         const { data, timestamp } = this.#collection.get(key);
-        ws.write(JSON.stringify({ key, timestamp, data }) + '\n');
+        gzipStream.write(JSON.stringify({ key, timestamp, data }) + '\n');
       }
 
-      ws.end();
+      gzipStream.end();
 
     });
   }
