@@ -1,6 +1,5 @@
 const readline = require('readline');
 const bucket = require('../config/storage');
-
 const Log = new (require('@zero65tech/log'));
 
 class CollectionService {

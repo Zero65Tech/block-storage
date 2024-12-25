@@ -2,28 +2,28 @@ const CollectionService = require('./collection');
 
 class CollectionSetService {
 
-  #collectionsPath;
-  #collections = new Map();
+  #collectionSetPath;
+  #collectionSet = new Map();
 
-  constructor(collectionsPath) {
-    this.#collectionsPath = collectionsPath;
+  constructor(collectionSetPath) {
+    this.#collectionSetPath = collectionSetPath;
   }
 
   get(collectionName) {
-    let value = this.#collections.get(collectionName);
+    let value = this.#collectionSet.get(collectionName);
     if(!value) {
       value = {
-        collection: new CollectionService(this.#collectionsPath, this.collectionName),
+        collection: new CollectionService(this.#collectionSetPath, this.collectionName),
         timestamp: new Date()
       };
-      this.#collections.set(collectionName, value);
+      this.#collectionSet.set(collectionName, value);
     }
     value.timestamp = new Date();
     return value.collection;
   }
 
-  async persist() {
-    for(const value of this.#collections.values())
+  async persistAll() {
+    for(const value of this.#collectionSet.values())
       await value.collection.persist();
   }
 
