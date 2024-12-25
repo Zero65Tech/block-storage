@@ -8,7 +8,7 @@ class CollectionService {
   #collectionName;
   #collection;
   #collectionLastUpdated = new Date();
-  #collectionLastPersisted = new Date();
+  #collectionLastPersisted = this.#collectionLastUpdated;
 
   constructor(collectionPath, collectionName) {
     this.#collectionPath = collectionPath;
@@ -82,7 +82,12 @@ class CollectionService {
 
     await new Promise((resolve, reject) => {
 
-      let ws = bucket.file(this.#collectionPath + this.#collectionName).createWriteStream();
+      const metadata = {
+        contentType: 'text/plain',
+        // contentEncoding: response.headers['content-encoding']
+      };
+
+      const ws = bucket.file(this.#collectionPath + this.#collectionName).createWriteStream({ metadata });
 
       ws.on('error', (e) => {
         reject(e);

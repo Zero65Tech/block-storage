@@ -13,7 +13,7 @@ class CollectionSetService {
     let value = this.#collectionSet.get(collectionName);
     if(!value) {
       value = {
-        collection: new CollectionService(this.#collectionSetPath, this.collectionName),
+        collection: new CollectionService(this.#collectionSetPath, collectionName),
         timestamp: new Date()
       };
       this.#collectionSet.set(collectionName, value);
