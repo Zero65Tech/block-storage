@@ -86,24 +86,23 @@ class CollectionService {
       const gzipStream = zlib.createGzip();
 
       const metadata = { contentType: 'text/plain', contentEncoding: 'gzip' };
-      const ws = bucket.file(this.#collectionPath + this.#collectionName).createWriteStream({ metadata });
-
-      gzipStream.pipe(ws);
+      const gcsStream = bucket.file(this.#collectionPath + this.#collectionName).createWriteStream({ metadata });
 
       gzipStream.on('error', (e) => {
         reject(e);
       });
 
-      ws.on('error', (e) => {
+      gcsStream.on('error', (e) => {
         reject(e);
       });
 
-      ws.on('finish', () => {
+      gcsStream.on('finish', () => {
         this.#collectionLastPersisted = dateRef;
         Log.notice(`${ this.#collectionPath + this.#collectionName } persisted to GCS !`);
         resolve();
       });
 
+      gzipStream.pipe(gcsStream);
       for(const key of Array.from(this.#collection.keys()).sort()) {
         const { data, timestamp } = this.#collection.get(key);
         gzipStream.write(JSON.stringify({ key, timestamp, data }) + '\n');
