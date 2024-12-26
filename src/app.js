@@ -19,6 +19,7 @@ app.use('/', require('./legacy'));
 app.get('/:collectionSet/:collectionName/:key', async (req, res) => {
 
   const { collectionSet, collectionName, key } = req.params;
+  const { processor } = req.query;
 
   const collectionSetSevice = collectionSets.get(collectionSet);
   const collectionService = collectionSetSevice.get(collectionName);
@@ -26,7 +27,10 @@ app.get('/:collectionSet/:collectionName/:key', async (req, res) => {
   const data = {};
   data[key] = await collectionService.get(key);
 
-  // TODO: Processor
+  if(processor) {
+    const processorFn = require(`./services/${collectionSet}/${processor}`);
+    data[key] = processorFn(data[key]);
+  }
 
   res.send(data);
 

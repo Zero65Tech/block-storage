@@ -14,6 +14,7 @@
     "@duckdb/node-api": "^1.1.3-alpha.8",
     "@google-cloud/storage": "7.12.x",
     "@zero65tech/log": "4.0.x",
+    "@zero65tech/object": "4.0.x",
     "express": "4.18.x"
   },
   "devDependencies": {
@@ -28,6 +29,6 @@
   "nodemonConfig": {
     "verbose": false,
     "ignore": [],
-    "delay": "1000"
+    "delay": "100"
   }
 }
