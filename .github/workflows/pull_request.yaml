@@ -5,7 +5,12 @@ on:
     types: [ opened, synchronize ]
 
 jobs:
+  test:
+    uses: Zero65Tech/github-workflows/.github/workflows/npm-test.yaml@master
+    with:
+      NODE_VERSION: '22' # 22.12.0
   lint:
-    uses: Zero65Tech/github-workflows/.github/workflows/lint-and-commit.yaml@master
+    needs: test
+    uses: Zero65Tech/github-workflows/.github/workflows/npm-run-lint.yaml@master
     with:
       NODE_VERSION: '22' # 22.12.0
